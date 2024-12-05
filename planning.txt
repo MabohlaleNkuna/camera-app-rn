@@ -1,0 +1,133 @@
+Gallery app plan
+
+React Native Image Gallery App - Full Project Plan
+
+Objective:
+The goal of this project is to create a mobile image gallery app that allows users to capture images, view images in a gallery or full-screen mode, and display geolocation information of where the images were taken on a map. SQLite will be used for storing image metadata.
+
+1. Initial Setup
+
+  - Create a new React Native project using Expo or React Native CLI:
+     npx create-expo-app@latest --template blank
+
+ - Install version 51 for my app with the following command:
+	npm install expo@51
+
+  - Install necessary dependencies for the app:
+    - For typescript: npm install --save-dev typescript @types/react @types/react-native
+                    :  npx tsc --init
+    - For image capture: react-native-camera, expo-camera
+    - For map integration: react-native-maps, expo-location
+    - For SQLite: react-native-sqlite-storage, expo-sqlite
+    - For geolocation: react-native-geolocation-service, expo-location
+    - For state management (optional): redux or context API
+    - For UI elements: react-native-paper, react-navigation
+
+    Install dependencies example:
+    npm install react-native-camera react-native-maps expo-location react-native-sqlite-storage
+
+
+2. Image Capture Functionality
+- Capture Images:
+  - Implement the camera functionality using react-native-camera or Expo's camera.
+  - Allow the user to take pictures and store them in the device's file system.
+  
+- Store Image Metadata:
+  - When saving images, include the following metadata:
+    - Timestamp: Date and time the photo was taken.
+    - Geolocation: Latitude and longitude of the location where the photo was taken.
+    - File path: Path where the image is stored locally.
+
+- Handle Permissions:
+  - Ensure that necessary permissions are requested for using the camera and geolocation.
+
+3. SQLite Integration
+- Install SQLite Storage:
+  - Use SQLite to store image metadata including file paths, timestamps, and geolocation.
+  - Set up a local SQLite database to store this data.
+
+- Implement CRUD Operations:
+  - Implement the basic CRUD operations for managing image metadata in SQLite:
+    - Create: Add new records when capturing images.
+    - Read: Retrieve image metadata from the database to display in the gallery.
+    - Update: (Optional) Allow updating metadata.
+    - Delete: (Optional) Allow deleting images and metadata.
+
+- Test Database Functionality:
+  - Test CRUD operations using sample data and ensure the database works as expected.
+
+4. Image Gallery
+- Design Grid/List Layout:
+  - Create a grid or list layout for displaying the images stored in the gallery.
+  - Display images with thumbnails and allow full-screen viewing.
+
+- Full-Screen and Carousel View:
+  - Implement full-screen view for images and carousel functionality for swiping between images.
+
+- Navigation:
+  - Use React Navigation to navigate between the gallery and full-screen view.
+
+5. Geolocation and Map Integration
+- Integrate Geolocation:
+  - Use the device's geolocation API (expo-location or react-native-geolocation-service) to get the location when capturing an image.
+  - Save the geolocation (latitude and longitude) in the image metadata.
+
+- Map Integration:
+  - Use react-native-maps to display a map in the app.
+  - Show markers on the map for each image location.
+  - Allow users to click on a map marker and see the corresponding image in the gallery.
+
+6. Search and Filter Features
+- Implement Search Functionality:
+  - Implement search by metadata, such as location or date, to find specific images in the gallery.
+
+- Add Filter Options:
+  - Allow users to filter images based on criteria such as:
+    - Date range
+    - Location
+    - Tags (if any)
+
+7. User Interface
+- Design Aesthetic UI:
+  - Create a user-friendly interface with the following features:
+    - Image Thumbnails: Display small previews of images.
+    - Navigation Buttons: Allow users to navigate between the gallery and full-screen view.
+    - Search Bar: Implement a search bar for quick image lookups.
+    - Pinch-to-Zoom: Allow users to zoom into images and the map using pinch gestures.
+    - Swipe Gestures: Allow users to swipe between images in the carousel.
+
+- Ensure Responsiveness:
+  - Make the app responsive across different devices and screen sizes.
+
+8. Security and Permissions
+- Handle Permissions Properly:
+  - Ensure the app properly requests permissions for camera access, location services, and file system storage.
+
+- Implement Security Measures:
+  - Ensure that sensitive data such as geolocation is handled securely and stored appropriately.
+
+9. Testing and Debugging
+- Test Functionality:
+  - Perform functional testing on all app features to ensure everything works as expected, especially image capture, gallery, map integration, and search features.
+
+- Test Performance:
+  - Test the app’s performance, particularly with a large number of images. Ensure smooth image loading and map rendering.
+
+- Fix Bugs:
+  - Address any bugs or issues identified during testing.
+
+10. Documentation and Final Touches
+- Write Documentation:
+  - Provide user and developer documentation for the app.
+  - Document the codebase, explaining the structure, dependencies, and important functions.
+
+- Prepare Presentation:
+  - Prepare a presentation demonstrating the app’s features, including image capture, gallery functionality, geolocation tagging, and map integration.
+
+- Final Testing and Code Review:
+  - Perform a final round of testing and code review to ensure everything is working and up to standards.
+
+11. Deployment
+- Deploy App:
+  - Deploy the app on a test device and ensure installation works as expected.
+  - Push the final version to GitHub and share the repository link.
