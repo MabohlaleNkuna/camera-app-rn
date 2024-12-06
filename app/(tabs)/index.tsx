@@ -33,13 +33,13 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'space-between', 
     padding: 10,
   },
   image: {
-    width: 100, 
-    height: 100, 
-    margin: 5,
+    width: '30%',  
+    height: 100,
+    marginBottom: 10,  
   },
   galleryApp: {
     flex: 3,
