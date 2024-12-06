@@ -1,14 +1,31 @@
 import { StyleSheet } from 'react-native';
-
+import {useState,useEffect} from 'react';
+import * as MediaLibrary from 'expo-media-library';
 import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import { Text, View} from '@/components/Themed';
+import { Image } from 'react-native';
+
 
 export default function TabOneScreen() {
+  const [assets, setAssets] = useState<MediaLibrary.Asset[]>([]);
+
+  useEffect(() => {
+    async function getAlbumAssets() {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status === 'granted') {
+      const album= await MediaLibrary.getAlbumAsync("galleryApp");
+      const albumAssets = await MediaLibrary.getAssetsAsync({ album });
+      setAssets(albumAssets.assets);
+      }
+    }
+    getAlbumAssets();
+  }, []);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+            {assets && assets.map((asset,i) => (
+          <Image key={i} source={{ uri: asset.uri }} width={50} height={50} />
+        ))}
+
     </View>
   );
 }

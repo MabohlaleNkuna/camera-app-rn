@@ -4,13 +4,12 @@ import { AntDesign } from '@expo/vector-icons';
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as Location from 'expo-location';
-import PhotoPreview from '@/components/PhotoPreview';
 
 export default function Camera() {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<any>(null);
-  const [photos, setPhotos] = useState<any[]>([]);  
+  const [photos, setPhotos] = useState<any[]>([]);
   const cameraRef = useRef<CameraView | null>(null);
 
   if (!permission) {
@@ -21,81 +20,89 @@ export default function Camera() {
     return (
       <View style={styles.container}>
         <Text style={{ textAlign: 'center' }}>We need your permission to show the camera</Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <Button onPress={requestPermission} title="Grant Permission" />
       </View>
     );
   }
 
   async function toggleCameraFacing() {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
+    setFacing((current) => (current === 'back' ? 'front' : 'back'));
   }
 
   const handleTakePhoto = async () => {
     if (cameraRef.current) {
-      const options = {
-        quality: 1,
-        base64: true,
-        exif: true, 
-      };
+      const options = { quality: 1, base64: true };
       const takenPhoto = await cameraRef.current.takePictureAsync(options);
 
-      if (takenPhoto) { 
+      if (takenPhoto) {
         setPhoto(takenPhoto);
 
-        // Save photo to the device's file system
+        // Save photo to default camera album
         const { status } = await MediaLibrary.requestPermissionsAsync();
         if (status === 'granted') {
-          // Get current location
-          const location = await Location.getCurrentPositionAsync({});
-
-          // Create an album called 'CapturedPhotos' if it doesn't exist
-          let album = await MediaLibrary.getAlbumAsync('CapturedPhotos');
-          if (!album) {
-            album = await MediaLibrary.createAlbumAsync('CapturedPhotos', takenPhoto.uri, false);
-          }
-
-          // Save photo to MediaLibrary
           const asset = await MediaLibrary.createAssetAsync(takenPhoto.uri);
-          await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+          const album= await MediaLibrary.getAlbumAsync("galleryApp");
+          console.log (album);
+          if (!album) {
+            console.log("album null")
+            const album= await MediaLibrary.createAlbumAsync("galleryApp",asset);
+            await MediaLibrary.deleteAssetsAsync(asset);
+          }else{
+            console.log("album not null")
+            await MediaLibrary.addAssetsToAlbumAsync(asset,album);
+            await MediaLibrary.deleteAssetsAsync(asset);
+          }
+          
 
-          // Save metadata (timestamp, location)
-          const timestamp = new Date().toISOString();
-          const photoMetadata = {
-            timestamp,
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
+            console.log('Permission to access location was denied');
+            return;
+          }
+          const location = await Location.getCurrentPositionAsync({});
+          console.log('Photo saved at:', asset.uri);
+
+          // Save metadata for debugging
+          const metadata = {
+            timestamp: new Date().toISOString(),
             location: {
               latitude: location.coords.latitude,
               longitude: location.coords.longitude,
             },
           };
-          console.log(photoMetadata); 
+          console.log('Photo metadata:', metadata);
 
-          // Update state to show all photos
-          const updatedPhotos = await MediaLibrary.getAssetsAsync({
-            album: album.id,
-            first: 50,
-            mediaType: 'photo',
-          });
-          setPhotos(updatedPhotos.assets); 
+          // Add to state for UI
+          setPhotos((prevPhotos) => [...prevPhotos, { id: asset.id, uri: asset.uri }]);
+        } else {
+          console.error('MediaLibrary permissions not granted');
         }
       } else {
-        console.error("Photo capture failed, no photo returned.");
+        console.error('Photo capture failed');
       }
     }
   };
 
   const handleRetakePhoto = () => setPhoto(null);
 
-  if (photo) return <PhotoPreview photo={photo} handleRetakePhoto={handleRetakePhoto} />;
+  if (photo) {
+    return (
+      <View style={styles.previewContainer}>
+        <Image style={styles.previewImage} source={{ uri: photo.uri }} />
+        <Button title="Retake Photo" onPress={handleRetakePhoto} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <AntDesign name='retweet' size={44} color='black' />
+            <AntDesign name="retweet" size={44} color="white" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={handleTakePhoto}>
-            <AntDesign name='camera' size={44} color='black' />
+            <AntDesign name="camera" size={44} color="white" />
           </TouchableOpacity>
         </View>
       </CameraView>
@@ -118,7 +125,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    paddingTop: 20,
   },
   camera: {
     flex: 1,
@@ -133,14 +139,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: 'flex-end',
     alignItems: 'center',
-    marginHorizontal: 10,
-    backgroundColor: 'gray',
-    borderRadius: 10,
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
   },
   photoItem: {
     marginBottom: 10,
@@ -148,6 +146,14 @@ const styles = StyleSheet.create({
   photo: {
     width: 100,
     height: 100,
-    borderRadius: 10,
+  },
+  previewContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  previewImage: {
+    width: '100%',
+    height: '80%',
   },
 });
