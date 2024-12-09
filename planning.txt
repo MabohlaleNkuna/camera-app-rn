@@ -131,3 +131,5 @@ The goal of this project is to create a mobile image gallery app that allows use
 - Deploy App:
   - Deploy the app on a test device and ensure installation works as expected.
   - Push the final version to GitHub and share the repository link.
+
+  //AIzaSyC0zQgXDYA-8b5aA5WpV2-Yss13xUJ83lw
