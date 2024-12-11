@@ -1,10 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';  
+import React, { useRef, useState } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View, FlatList, Image } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import * as MediaLibrary from 'expo-media-library';
 import * as Location from 'expo-location';
-import { insertData, readData, createTable } from '../database/db'; 
 
 export default function Camera() {
   const [facing, setFacing] = useState<CameraType>('back');
@@ -12,11 +11,6 @@ export default function Camera() {
   const [photo, setPhoto] = useState<any>(null);
   const [photos, setPhotos] = useState<any[]>([]);
   const cameraRef = useRef<CameraView | null>(null);
-
-  // Create table for the first time
-  useEffect(() => {
-    createTable();
-  }, []);
 
   if (!permission) {
     return <View />;
@@ -42,44 +36,43 @@ export default function Camera() {
 
       if (takenPhoto) {
         setPhoto(takenPhoto);
-        console.log('Photo taken:', takenPhoto.uri);
 
         // Save photo to default camera album
         const { status } = await MediaLibrary.requestPermissionsAsync();
         if (status === 'granted') {
           const asset = await MediaLibrary.createAssetAsync(takenPhoto.uri);
-          const album = await MediaLibrary.getAlbumAsync("galleryApp");
+          const album= await MediaLibrary.getAlbumAsync("galleryApp");
+          console.log (album);
           if (!album) {
-            await MediaLibrary.createAlbumAsync("galleryApp", asset);
-          } else {
-            await MediaLibrary.addAssetsToAlbumAsync(asset, album);
+            console.log("album null")
+            const album= await MediaLibrary.createAlbumAsync("galleryApp",asset);
+            await MediaLibrary.deleteAssetsAsync(asset);
+          }else{
+            console.log("album not null")
+            await MediaLibrary.addAssetsToAlbumAsync(asset,album);
+            await MediaLibrary.deleteAssetsAsync(asset);
           }
+          
 
-          // Get location permission and current position
-          let { status: locationStatus } = await Location.requestForegroundPermissionsAsync();
-          if (locationStatus !== 'granted') {
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
             console.log('Permission to access location was denied');
             return;
           }
           const location = await Location.getCurrentPositionAsync({});
-          console.log('Current location:', location.coords);
+          console.log('Photo saved at:', asset.uri);
 
-          // Save metadata in SQLite
-          const filename = asset.filename;
-          const uri = asset.uri;
-          const timestamp = Date.now().toString();
-          const latitude = location.coords.latitude;
-          const longitude = location.coords.longitude;
+          // Save metadata for debugging
+          const metadata = {
+            timestamp: new Date().toISOString(),
+            location: {
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            },
+          };
+          console.log('Photo metadata:', metadata);
 
-          const fileId = asset.id;  
-
-          // Insert metadata into database
-          await insertData(fileId, filename, uri, timestamp, latitude, longitude);
-
-         
-          const allData = await readData();
-          console.log('All photos metadata from SQLite:', allData);
-
+          // Add to state for UI
           setPhotos((prevPhotos) => [...prevPhotos, { id: asset.id, uri: asset.uri }]);
         } else {
           console.error('MediaLibrary permissions not granted');

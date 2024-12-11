@@ -1,19 +1,7 @@
 {
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "target": "esnext",
-    "lib": [
-      "esnext",
-      "dom"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
     "strict": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "jsx": "react-native",
-    "noEmit": true,
-    "isolatedModules": true,
     "paths": {
       "@/*": [
         "./*"
@@ -25,9 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
-  "extends": "expo/tsconfig.base"
+  ]
 }
